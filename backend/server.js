@@ -10,8 +10,10 @@ const port = process.env.port || 5000;
 app.use(cors());
 app.use(express.json());
 
-const uri = process.env.ATLAS_URI;
+const uri = process.env.local_uri;
+
 mongoose.connect(uri, {useNewUrlParser: true, useCreateIndex: true,  useUnifiedTopology: true})
+
 
 const connection = mongoose.connection;
 connection.once('open', () =>  {
@@ -38,7 +40,6 @@ const appointmentRouter = require('./routes/appointments');
 
 app.use('/reports',express.static('reports')); 
 
-
 app.use('/inventoryItems',inventoryItemsRouter); 
 app.use('/inventoryDoses',inventoryItemDoseRouter); 
 app.use('/patients',patientsRouter); 
@@ -56,8 +57,6 @@ app.use('/suppliers',supplierRouter);
 app.use('/purchases',purchaseRouter); 
 app.use('/reports',reportRouter); 
 app.use('/appointments',appointmentRouter); 
-
-
 
 app.listen(port, () => {
     console.log(`server is running on port: ${port}`)

@@ -129,7 +129,7 @@ reportlist(){
                 <div className="p-3 border bg-light">
 <div className="row">
 <div className="col">
-    <label className="form-label" >Upload File</label>
+<label className="form-label" >Upload File</label>
 <input type="file" className="form-control" name="file" onChange={this.onChangeFile} ></input>
 </div>
 

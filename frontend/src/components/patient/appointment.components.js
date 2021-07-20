@@ -16,17 +16,31 @@ constructor(props){
     this.onCancel = this.onCancel.bind(this);
     this.onChnageDate = this.onChnageDate.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
-
+    this.onSelectDoc = this.onSelectDoc.bind(this);
 
 
     this.state ={
        date:'',
+       doctors:[],
+       selectedDoc:""
     }
 }
 
 
-componentDidMount(){
-    
+componentWillReceiveProps(){
+    axios.get('http://localhost:5000/staffs/getDoc')
+        .then(res=> {
+           this.setState({ doctors:res.data,
+            selectedDoc:res.data[0]._id
+        })
+        })
+}
+
+onSelectDoc(e){
+    this.setState({
+        selectedDoc :e.target.value
+    });    console.log(this.state.selectedDoc)
+
 }
 
 
@@ -34,6 +48,7 @@ onChnageDate(date){
     this.setState({
         date :date
     });
+    console.log(date.toLocaleDateString())
   }
 
 
@@ -45,15 +60,28 @@ onCancel(){
 }
 
 onSubmit(){
-    const app={
-        patient_id:localStorage.getItem('consideredPatint'),
-        doctor_id:"60ab706f36062226ec67d528",
-        date:this.state.date
+    const num={
+        doctor_id:this.state.selectedDoc,
+        date:this.state.date.toLocaleDateString()
     }
-    axios.post('http://localhost:5000/appointments/addAppointment', app)
+
+    axios.post('http://localhost:5000/appointments/getNumbers', num)
         .then(res=> {
-            this.props.onHide();
+            
+            const app={
+                patient_id:localStorage.getItem('consideredPatint'),
+                doctor_id:this.state.selectedDoc,
+                date:this.state.date,
+                number:"No: "+res.data
+            }
+            axios.post('http://localhost:5000/appointments/addAppointment', app)
+                .then(res2=> {
+                    this.props.onHide();
+                })
+
         })
+
+    
 }
 
 
@@ -74,8 +102,11 @@ onSubmit(){
 <div className="p-3 border bg-light">
 
         <label for="brand_name" className="form-label">Select Doctor</label>
-         <select className="form-control">
-         <option>Dr.P.D.R. Deshan</option>
+         <select className="form-control" onChange={this.onSelectDoc}>
+         {this.state.doctors.map(item=>{
+        return<option value={item._id}>{item.staff_name} - {item.speciality} - Reg No:{item.reg_no}</option>
+        })
+        }
          </select>
 
 <br/>

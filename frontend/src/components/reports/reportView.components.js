@@ -5,6 +5,7 @@ import { jsPDF } from "jspdf";
 import swal from '@sweetalert/with-react';
 import DatePicker from "react-datepicker";
 import moment  from 'moment';
+import html2canvas from 'html2canvas';
 
 
 
@@ -20,30 +21,51 @@ constructor(props){
 
 
     this.state ={
-       type:'',
+       type:'Income Report',
        from:'',
-       to:''
+       to:'',
+       incomehide:''
 
     }
 }
 
 
 generateReport(){
-    var doc = new jsPDF('portrait','pt','a4','false');
 
-    doc.setFontSize(5);
+    html2canvas(document.getElementById('testIframe').contentWindow).then(
+        function(canvas) {
+            var doc = new jsPDF('portrait','pt','a4','false');
 
-doc.html(document.querySelector("#report"),{
-    callback:function(pdf){
-        pdf.save("in.pdf");
-    }
-})
+            doc.setFontSize(5);
+        // const testIframe= document.getElementById("testIframe")
+        // const testIframeWindow=  testIframe.contentWindow; 
+        
+        doc.html(canvas,{
+            callback:function(pdf){
+                pdf.save("in.pdf");
+            }
+        })
+    });
+
+    
 }
+
 
 onChangeType(e) {
     this.setState({
       type: e.target.value
     });
+
+    if(e.target.value=="Income Report"){
+        this.setState({
+            incomehide:true
+        })
+    }
+    else{
+        this.setState({
+            incomehide:""
+        })
+    }
     }
 onChangeFrom(date){
         this.setState({
@@ -68,17 +90,17 @@ onChangeTo(date){
 <label className="form-label">Report Type</label>
 
 <select className="form-control" value={this.state.type} onChange={this.onChangeType}>
-    <option selected>--Select Report Type--</option>
-    <option>Income Report</option>
+    {/* <option selected hidden>--Select Report Type--</option> */}
+    <option selected>Income Report</option>
     <option>Stock Report</option>
 </select>
 </div>
 
-<div className="col-2" style={{marginLeft:50}}>
+<div className="col-2" style={{marginLeft:0}} hidden>
     
 <label className="form-label">From:</label>
 <br/>
-<DatePicker
+<DatePicker 
 selected={this.state.from}
 onChange={this.onChangeFrom}
 className="form-control"
@@ -86,12 +108,12 @@ maxDate={moment().toDate()}
 /> 
 </div>
 
-<div className="col-2" style={{marginLeft:50}}>
+<div className="col-2" style={{marginLeft:50}} hidden>
     
 <label className="form-label">To:</label>
 <br/>
 
-<DatePicker
+<DatePicker 
 selected={this.state.to}
 onChange={this.onChangeTo}
 className="form-control"
@@ -106,27 +128,14 @@ minDate={moment().toDate()}
 
 </div>
 
-<div style={{marginTop:100,marginLeft:400}}>
+<div style={{marginTop:100}}>
 
-<div id="report" style={{width:550}}>
-this is the test report
-<br/>
+<div id="report">
+<iframe hidden={!this.state.incomehide} id="testIframe" width="1140" height="500" src="https://app.powerbi.com/reportEmbed?reportId=f7a6fd61-1580-414f-8496-16f15016a19a&autoAuth=true&ctid=aa232db2-7a78-4414-a529-33db9124cba7&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLXNvdXRoLWVhc3QtYXNpYS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldC8ifQ%3D%3D&filterPaneEnabled=False" frameborder="10" allowFullScreen="true">
+    
+</iframe>
+                      
 
-
-<table className="table">
-    <tr>
-        <th>head 1</th>
-        <th>head 2</th>
-
-    </tr>
-    <tbody>
-        <tr>
-            <td>1</td>
-            <td>2</td>
-
-        </tr>
-    </tbody>
-</table>
 </div>
 
 </div>

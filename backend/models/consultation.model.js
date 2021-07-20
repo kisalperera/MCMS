@@ -16,9 +16,9 @@ const consultationSchema = new Schema({
     ronchi: {type:String, required: true},
     other_exam: {type:String, required: false},
     diagnosis: {type:String, required: true},
-    investigations: {type:String, required: false},
+    investigations: {type:Object, required: false},
     consultation_charge: {type:Number, required: false},
-    next_vist: {type:Date, required: false},
+    consultation_commission: {type:Number, required: false},
     consult_doctor:{type:String, required: true},
 
 },

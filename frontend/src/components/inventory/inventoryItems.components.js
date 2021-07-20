@@ -3,12 +3,16 @@ import {Link} from 'react-router-dom';
 import axios from 'axios';
 import "bootstrap/dist/css/bootstrap.min.css";
 import AddItem from "./addItem.components";
+import {NotificationContainer, NotificationManager} from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
+
 
 function searchItem(item) {
     return function (e) {
     return e.item_name.toLowerCase().includes(item.toLowerCase()) ||!item;      
     }
 }
+
 
 const InventoryItem = props=>(
     <tr>
@@ -41,6 +45,7 @@ export default class Inventory extends Component {
         super(props);
         this.checkLogin = this.checkLogin.bind(this);
         this.onChangeSearch = this.onChangeSearch.bind(this);
+        this.createNotification = this.createNotification.bind(this);
 
         this.deleteInventoryItem = this.deleteInventoryItem.bind(this);
         this.state ={
@@ -51,10 +56,34 @@ export default class Inventory extends Component {
         };
     }
 
+ 
+createNotification(type,string){
+  
+
+    switch (type) {
+      case 'info':
+        return(NotificationManager.info(string,'Item Request',3000))
+        break;
+      case 'success':
+        return(NotificationManager.success('Success message', 'Title here'))
+        break;
+      case 'warning':
+        return(NotificationManager.warning(string, 'Close after 3000ms', 3000))
+        break;
+      case 'error':
+        return(NotificationManager.error(string, 'Click me!', 5000))
+        break;
+    }
+
+  
+}   
+
 onChangeSearch(e) {
 this.setState({
   search: e.target.value
 });
+this.createNotification('info')
+
 }
 
 checkLogin(){
@@ -73,6 +102,20 @@ axios.get('http://localhost:5000/inventoryItems/')
 .catch((error) =>{
     console.log(error);
 })
+
+// axios.get('http://localhost:5000/requests/getnewRequest')
+// .then(res=>{
+//   for(let i=0;i<res.data.length;i++){
+//       var string=res.data[i].generic_name+" "+res.data[i].strength
+//       this.createNotification('info',string)
+
+//   }
+// })
+
+//  return(createNotification('success'))
+// this.createNotification('success',"Stock Warning")
+// this.createNotification('error',"Stock Error")
+
 
 }
 
@@ -100,6 +143,8 @@ window.location.reload();
        return(
            
        <div>
+           <NotificationContainer/>
+   
            <div className="row -md-6">
          <div className="col-8" style={{width:969}}><input className="form-control me-2" type="search" placeholder="Search Item" aria-label="Search" value={this.state.search} onChange={this.onChangeSearch}  /> </div>
 

@@ -10,24 +10,55 @@ export default class AssignNumbers extends Component {
   constructor(props) {
     super(props);
     this.onConfirm = this.onConfirm.bind(this);
+    this.onSelectDoc = this.onSelectDoc.bind(this);
+   
+   
+    this.state={
+      selectedDoc:'',
+      doctors:[],
+      nextNumber:''
+    }
 
   }
+  onSelectDoc(e){
+    this.setState({
+        selectedDoc :e.target.value
+    });    console.log(this.state.selectedDoc)
+
+    const doc={
+      assigned_doctor:e.target.value
+    }
+
+    axios.get('http://localhost:5000/staffs/getDocNumber/'+e.target.value)
+    .then(res1 =>{
+      axios.post('http://localhost:5000/patients/getNextNumber',doc)
+      .then(res2 =>{
+        this.setState({
+          nextNumber:res1.data+res2.data
+        })
+      } ).catch(err=>{
+        this.setState({
+          nextNumber:res1.data+1
+        })      })
+
+    })
+    
+}
 
   componentDidMount(){
-
-
-    
-    axios.get('http://localhost:5000/patients/getNextNumber')
-    .then((res) => {nextNumber =res.data});
-
+    axios.get('http://localhost:5000/staffs/getDoc')
+    .then(res=> {
+       this.setState({ doctors:res.data,
+    })
+    })
   }
 
   onConfirm(id){
 
 
         const patient ={
-            assigned_number:nextNumber
-        
+            assigned_number:this.state.nextNumber,
+            assigned_doctor:this.state.selectedDoc
         }
 
         axios.post('http://localhost:5000/patients/assignNumber/'+localStorage.getItem('consideredPatint'),patient)
@@ -53,7 +84,17 @@ export default class AssignNumbers extends Component {
         </Modal.Header>
       
         <Modal.Body>
-          <h3>Number: {nextNumber}</h3><br></br>
+
+         <select className="form-control" onChange={this.onSelectDoc}>
+           <option selected hidden>Select a Doctor</option>
+         {this.state.doctors.map(item=>{
+        return<option value={item._id}>{item.staff_name} - {item.speciality} - Reg No:{item.reg_no}</option>
+        })
+        }
+         </select>
+
+<br/>
+          <h3 hidden={!this.state.nextNumber}>Number: {this.state.nextNumber}</h3><br></br>
 
         </Modal.Body>
       

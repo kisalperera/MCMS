@@ -13,18 +13,24 @@ export default class Patients extends Component {
     constructor(props){
         super(props);
         this.addModal = this.addModal.bind(this);
+        this.onSelectDoc = this.onSelectDoc.bind(this);
 
         this.state={
             addModalShow:false,
             result:[],
-            data:[{
-                title:" ",
-                start:"2021-07-05T11:00:00.000+00:00",
-                end: "2021-07-05T11:00:00.000+00:00"
-            }]
+            doctors:[],
+            selectedDoc:'',
+            schedule:[]
+
         }
 } 
+onSelectDoc(e){
+    this.setState({
+        selectedDoc :e.target.value,
+        schedule:this.state.result.filter(el=>el.doctor_id==e.target.value)
 
+    });
+}
 addModal(){
     this.setState({
         addModalShow:true
@@ -32,26 +38,22 @@ addModal(){
 }
 
 componentDidMount(){
+    axios.get('http://localhost:5000/staffs/getDoc')
+    .then(res=> {
+       this.setState({ doctors:res.data,
+        selectedDoc:res.data[0]._id,
+    })
+
     axios.get('http://localhost:5000/appointments/getAppointment', )
     .then(resp=> {
         this.setState({
-            result:resp.data
-        },()=>{
-            for(let i=0;i<this.state.result.length;i++){
-                this.setState({
-                   data:[...this.state.data, ...[
-                       {title:"", 
-                       start:this.state.result[i].date, 
-                       end:this.state.result[i].date,
-                      }]
-                   ]
-                })
-            } 
+            result:resp.data,
+            schedule:resp.data.filter(el=>el.doctor_id==this.state.selectedDoc)
         })
+        })
+    })
 
-           
-            
-        })
+    
    
 }
 
@@ -67,8 +69,11 @@ componentDidMount(){
            <div>   
 <div className="row">
    < div className="col-8">
-<select className="form-control">
-<option>Dr.P.D.R. Deshan</option>
+<select className="form-control" onChange={this.onSelectDoc}>
+{this.state.doctors.map(item=>{
+        return<option value={item._id}>{item.staff_name} - {item.speciality} - Reg No:{item.reg_no}</option>
+        })
+        }
 </select>
     
    </div>
@@ -89,10 +94,10 @@ componentDidMount(){
 
                 <Calendar 
                     localizer={localizer}
-                    events={this.state.data}
-                    startAccessor="start"
-                    endAccessor="end"
-                    titleAccessor="title"
+                    events={this.state.schedule}
+                    startAccessor="date"
+                    endAccessor="date"
+                    titleAccessor="number"
                     style={{ height: 500 }}
                 />
 </div>

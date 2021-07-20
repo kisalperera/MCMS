@@ -1,11 +1,86 @@
 const router = require('express').Router();
 let staff = require('../models/staff.model');
+let doctor = require('../models/doctor.model');
+let payment = require('../models/payment.model');
+
+
+router.route('/addPay').post((req,res) => {
+
+    const date=req.body.date;
+    const staff_id=req.body.staff_id;
+    const amount=req.body.amount;
+    
+    const newpayment = new payment({
+        date,
+        staff_id,
+        amount,
+    });
+
+    newpayment.save()
+    .then(() => res.json('Staff Added!'))
+    .catch(err => res.status(400).json('error:' + err));
+});
 
 router.route('/getStaff').get((req,res)=>{
     staff.find()
         .then(staffs => res.json(staffs))
         .catch(err => res.status(400).json('error:' + err));
 } );
+
+router.route('/getDocNumber/:id').get((req,res)=>{
+    doctor.findById(req.params.id)
+        .then(doctors => res.json(doctors.assiged_number))
+        .catch(err => res.status(400).json('error:' + err));
+} );
+
+
+router.route('/getDoc').get((req,res)=>{
+    doctor.find()
+        .then(doctors => res.json(doctors))
+        .catch(err => res.status(400).json('error:' + err));
+} );
+
+router.route('/getDocByID/:id').get((req,res)=>{
+    doctor.findById(req.params.id)
+        .then(doctors => res.json(doctors))
+        .catch(err => res.status(400).json('error:' + err));
+} );
+
+router.route('/addDoc').post((req,res) => {
+
+    const staff_username=req.body.staff_username;
+    const staff_name=req.body.staff_name;
+    const staff_address=req.body.staff_address;
+    const staff_phone=req.body.staff_phone;
+    const staff_password=req.body.staff_password;
+    const staff_role=req.body.staff_role;
+    const title=req.body.title;
+    const speciality=req.body.speciality;
+    const reg_no=req.body.reg_no;
+    const consult_charge=req.body.consult_charge;
+    const commission=req.body.commission;
+    const assiged_number=req.body.assiged_number;
+
+    const newdoctor = new doctor({
+        staff_username,
+        staff_name,
+        staff_address,
+        staff_phone,
+        staff_password,
+        staff_role,
+        title,
+        speciality,
+        reg_no,
+        consult_charge,
+        commission,
+        assiged_number
+    });
+
+    newdoctor.save()
+    .then(() => res.json('Staff Added!'))
+    .catch(err => res.status(400).json('error:' + err));
+});
+
 
 router.route('/addStaff').post((req,res) => {
 
@@ -15,8 +90,7 @@ router.route('/addStaff').post((req,res) => {
     const staff_phone=req.body.staff_phone;
     const staff_password=req.body.staff_password;
     const staff_role=req.body.staff_role;
-
-    //const selling_price = Number(req.body.selling_price);
+    const staff_salary=req.body.staff_salary;
 
     const newstaff = new staff({
         staff_username,
@@ -25,6 +99,7 @@ router.route('/addStaff').post((req,res) => {
         staff_phone,
         staff_password,
         staff_role,
+        staff_salary
     });
 
     newstaff.save()
@@ -76,6 +151,18 @@ router.route('/reset').post((req,res)=>{
 
 router.route('/login').post((req,res)=>{
     staff.findOne({staff_username:req.body.staff_username})
+    .then(staff=>{
+        if(staff.staff_password==req.body.staff_password){
+            return res.json(staff)     
+          }
+        else{return res.json('Password incorrect!')}
+    })
+    .catch(err=>res.status(400).json('Error: '+err));
+})
+
+
+router.route('/logindoc').post((req,res)=>{
+    doctor.findOne({staff_username:req.body.staff_username})
     .then(staff=>{
         if(staff.staff_password==req.body.staff_password){
             return res.json(staff)     

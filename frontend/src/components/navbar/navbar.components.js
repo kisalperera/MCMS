@@ -3,20 +3,36 @@ import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { light } from "@material-ui/core/styles/createPalette";
 import NotificationBadge from 'react-notification-badge';
-import {Effect} from 'react-notification-badge';
+import axios from 'axios';
 
 
 export default class Navbar extends Component {
       constructor(props){
             super(props);
             this.logout=this.logout.bind(this);
+            this.getCount=this.getCount.bind(this);
 
             this.state={
                   count:0,
+                  notcount:0,
+
             }
       }
 
-     
+  getCount(){
+    // axios.get('http://localhost:5000/requests/getnewRequestCount')
+    // .then(res=>{
+    //   this.setState({
+    //     count:res.data
+    //   })
+    //   })
+  }
+
+ componentDidMount(){
+  this.getCount()
+ }  
+ 
+ 
 
       logout(){
             localStorage.setItem('staff_role',"");
@@ -75,14 +91,15 @@ render(){
    
 
 
-    <li className="navbar-item" style={{marginLeft:50}}>
+    <li className="navbar-item" style={{marginLeft:50}} onClick={this.getCount()} >
     <Link to="/request" className="nav-link" style={{width:130}} >Item Requests</Link>
     </li>  { 
         (this.state.count >0)
           ? <span style={{height:20,marginTop:10,marginLeft:-10}} className="translate-middle badge rounded-pill bg-danger">
           {this.state.count}
         </span> 
-          : <span style={{height:20,marginTop:10,marginLeft:-10}} >
+          : 
+          <span style={{height:20,marginTop:10,marginLeft:-10}} >
         </span> 
       }
     
@@ -96,9 +113,9 @@ render(){
 
     </li> 
     { 
-        (this.state.count >0)
+        (this.state.notcount >0)
           ? <span style={{height:20,marginTop:10,marginLeft:7}} className="translate-middle badge rounded-pill bg-danger">
-          {this.state.count}
+          {this.state.notcount}
         </span> 
           : <span style={{height:20,marginTop:10,marginLeft:7}} >
         </span> 

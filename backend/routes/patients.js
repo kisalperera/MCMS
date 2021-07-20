@@ -7,12 +7,15 @@ router.route('/getPatient').get((req,res)=>{
         .catch(err => res.status(400).json('error:' + err));
 } );
 
-router.route('/getNextNumber').get((req,res)=>{
-    patient.find().sort({
+router.route('/getNextNumber').post((req,res)=>{
+    patient.find({assigned_doctor:req.body.assigned_doctor}).sort({
         assigned_number:-1,
     })
         .then((patients) =>{ 
-            let nextNumber = patients[0].assigned_number +1;
+            console.log(patients)
+
+            let matches =patients[0].assigned_number.match(/(\d+)/);
+            let nextNumber = Number(matches[0]) +1;
             
             res.json(nextNumber)})
         .catch(err => res.status(400).json('error:' + err));
@@ -31,6 +34,7 @@ router.route('/addPatient').post((req,res) => {
     const smoking = req.body.smoking;
     const alcohol = req.body.alcohol;
     const assigned_number =Number(req.body.assigned_number);
+    const assigned_doctor =""
 
 
     const newPatient = new patient({
@@ -46,6 +50,7 @@ router.route('/addPatient').post((req,res) => {
         smoking,
         alcohol,
         assigned_number,
+        assigned_doctor
     });
 
     newPatient.save()
@@ -85,7 +90,7 @@ router.route('/getPatientByID/:id').get((req,res)=>{
 router.route('/assignNumber/:id').post((req,res)=>{
     patient.findById(req.params.id)
     .then(patient=>{
-        
+        patient.assigned_doctor =req.body.assigned_doctor  ;
         patient.assigned_number =Number(req.body.assigned_number)  ;
         patient.save()
         .then(()=>res.json('Number Assigned!'))
@@ -102,7 +107,7 @@ router.route('/getPatiendID').post((req,res)=>{
 })  
 
 
-router.route('/getLeastNumber').get((req,res)=>{
+router.route('/getLeastNumber').post((req,res)=>{
     patient.find().sort({
         assigned_number:+1,
     })
@@ -118,6 +123,8 @@ router.route('/finishPatient/:id').post((req,res)=>{
     patient.findById(req.params.id)
     .then(patient=>{
         patient.assigned_number = 0;
+        patient.assigned_doctor = "";
+
         patient.save()
         .then(()=>res.json(patient))
         .catch(err=>res.status(400).json('Error:' +err));

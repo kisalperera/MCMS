@@ -26,8 +26,8 @@ router.route('/addCounsultation').post((req,res) => {
     const diagnosis= req.body.diagnosis;
     const investigations= req.body.investigations;
     const consultation_charge= Number(req.body.consultation_charge);
-    const next_vist= Date.parse(req.body.next_vist);
     const consult_doctor=req.body.consult_doctor;
+    const consultation_commission= Number(req.body.consultation_commission);
 
     const newconsultation = new consultation({
         patient_id,
@@ -45,9 +45,8 @@ router.route('/addCounsultation').post((req,res) => {
         diagnosis,
         investigations,
         consultation_charge,
-        next_vist,
         consult_doctor,
-    
+        consultation_commission
     });
 
     newconsultation.save()

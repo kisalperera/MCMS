@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { type } = require('os');
 const Schema = mongoose.Schema;
 
-const staffSchema = new Schema({
+const docSchema = new Schema({
     
     staff_username:{type:String, required: true},
     staff_name:{type:String, required: true},
@@ -10,12 +10,17 @@ const staffSchema = new Schema({
     staff_phone:{type:String, required: true},
     staff_password:{type:String, required: true},
     staff_role:{type:String, required: true},
-    staff_salary:{type:String, required: true},
+    title:{type:String, required: true},
+    speciality:{type:String, required: true},
+    reg_no:{type:String, required: true},
+    consult_charge:{type:String, required: true},
+    commission:{type:String, required: true},
+    assiged_number:{type:String, required: true},
 
 },
 {    timestamp: true,}
 );
 
-const staff = mongoose.model('staff', staffSchema);
+const doctor = mongoose.model('doctor', docSchema);
 
-module.exports = staff;
+module.exports = doctor;

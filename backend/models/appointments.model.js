@@ -6,6 +6,8 @@ const appoinmentSchema = new Schema({
     patient_id: {type:String, required: true}, 
     doctor_id: {type:String, required: true},    
     date:{type:Date, required: true},
+    number: {type:String, required: true},    
+
 },
 
 {    timestamp: true,}

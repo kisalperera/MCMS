@@ -23,8 +23,9 @@ constructor(props){
     this.onChangeSalary = this.onChangeSalary.bind(this);
     this.onChangeCommission = this.onChangeCommission.bind(this);
     this.onChangeConsultCharge = this.onChangeConsultCharge.bind(this);
-
-
+    this.onChangeTitle = this.onChangeTitle.bind(this);
+    this.onChangeSpeciality = this.onChangeSpeciality.bind(this);
+    this.onChangeRegistration = this.onChangeRegistration.bind(this);
 
     this.state ={
         staff_username:'',
@@ -39,8 +40,28 @@ constructor(props){
         doctorhide:'',
         salary:'',
         commission:'',
-        consult_charge:''
+        consult_charge:'',
+        title:'',
+        speciality:'',
+        registration:'',
+        alphebet:["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
     }
+}
+
+onChangeTitle(e){
+    this.setState({
+        title :e.target.value
+    });
+}
+onChangeSpeciality(e){
+    this.setState({
+        speciality :e.target.value
+    });
+}
+onChangeRegistration(e){
+    this.setState({
+        registration :e.target.value
+    });
 }
 
 onChangeCommission(e){
@@ -120,6 +141,8 @@ componentWillReceiveProps(){
         hide:'',
         staff_role:''
     })
+
+ 
 }
 
 onSubmit(e){
@@ -127,22 +150,50 @@ onSubmit(e){
 
     if(this.state.staff_password==this.state.confirm_password){
 
-        const staff ={
-            staff_username:this.state.staff_username,
-            staff_name:this.state.staff_name,
-            staff_address:this.state.staff_address,
-            staff_phone:this.state.staff_phone,
-            staff_password:this.state.staff_password,
-            staff_role:this.state.staff_role
-    
-    
+        if(this.state.staff_role=="Doctor"){
+            axios.get('http://localhost:5000/staffs/getDoc')
+            .then(result=> {
+                const doc ={
+                    staff_username:this.state.staff_username,
+                    staff_name:this.state.staff_name,
+                    staff_address:this.state.staff_address,
+                    staff_phone:this.state.staff_phone,
+                    staff_password:this.state.staff_password,
+                    staff_role:this.state.staff_role,
+                    title:this.state.title,
+                    speciality:this.state.speciality,
+                    reg_no:this.state.registration,
+                    consult_charge:this.state.consult_charge,
+                    commission:this.state.commission,
+                    assiged_number:this.state.alphebet[Number(result.data.length)]
+                }
+            
+                axios.post('http://localhost:5000/staffs/addDoc', doc)
+                    .then(res=> {
+                        this.props.onHide();
+                        window.location.reload();
+                            });
+            })
+            
         }
-    
-        axios.post('http://localhost:5000/staffs/addStaff', staff)
-            .then(res=> {
-                this.props.onHide();
-                window.location.reload();
-                    });
+        else{
+            const staff ={
+                staff_username:this.state.staff_username,
+                staff_name:this.state.staff_name,
+                staff_address:this.state.staff_address,
+                staff_phone:this.state.staff_phone,
+                staff_password:this.state.staff_password,
+                staff_role:this.state.staff_role,
+                staff_salary:this.state.salary
+            }
+        
+            axios.post('http://localhost:5000/staffs/addStaff', staff)
+                .then(res=> {
+                    this.props.onHide();
+                    window.location.reload();
+                        });
+        }
+        
     }
     else{
 
@@ -189,7 +240,7 @@ onCancel(){
         
 <form onSubmit={this.onSubmit} >
 
-<label for="staff_role" className="form-label">Please Select a Role</label>
+<label  for="staff_role" className="form-label">Please Select a Role</label>
             <select className="form-control" aria-label=".form-select-lg example" id="staff_role" value ={this.state.staff_role} onChange={this.onChangeStaffRole} placeholder="Select Role" required>
             <option selected hidden></option>
             <option >Admin</option>
@@ -218,7 +269,7 @@ onCancel(){
             <div hidden={!this.state.otherhide}>
             <label for="staff_phone" className="form-label">Salary</label>
             <div class="input-group mb-3" >
-            <input type="text" className="form-control" id="staff_phone" value ={this.state.salary} onChange={this.onChangeSalary} required></input>
+            <input type="text" className="form-control" id="staff_phone" value ={this.state.salary} onChange={this.onChangeSalary} ></input>
             <div class="input-group-prepend"><span class="input-group-text" id="basic-addon1">Rs</span></div>
             </div>
             <br/>  
@@ -227,36 +278,35 @@ onCancel(){
             <div hidden={!this.state.doctorhide}>
 
             <label for="staff_phone" className="form-label">Title</label>
-            <input type="text" className="form-control" id="staff_phone" value ={this.state.staff_phone} onChange={this.onChangeStaffPhoneNo} required></input>
+            <input type="text" className="form-control" id="staff_phone" value ={this.state.title} onChange={this.onChangeTitle} ></input>
             <br/>
 
             <label for="staff_phone" className="form-label">Speciality</label>
-            <input type="text" className="form-control" id="staff_phone" value ={this.state.staff_phone} onChange={this.onChangeStaffPhoneNo} required></input>
+            <input type="text" className="form-control" id="staff_phone" value ={this.state.speciality} onChange={this.onChangeSpeciality} ></input>
             <br/>
 
             <label for="staff_phone" className="form-label">Registration No</label>
-            <input type="text" className="form-control" id="staff_phone" value ={this.state.staff_phone} onChange={this.onChangeStaffPhoneNo} required></input>
+            <input type="text" className="form-control" id="staff_phone" value ={this.state.registration} onChange={this.onChangeRegistration} ></input>
             <br/>
 
             <div className="row">
                 <div className="col">
                 <label for="staff_phone" className="form-label">Consultation Charge</label>
             <div class="input-group mb-3" >
-            <input type="text" className="form-control" id="staff_phone" value ={this.state.consult_charge} onChange={this.onChangeConsultCharge} required></input>
+            <input type="text" className="form-control" id="staff_phone" value ={this.state.consult_charge} onChange={this.onChangeConsultCharge} ></input>
             <div class="input-group-prepend"><span class="input-group-text" id="basic-addon1">Rs</span></div>
             </div>
                 </div>
                 <div className="col">
                 <label for="staff_phone" className="form-label">Commission</label>
             <div class="input-group mb-3" >
-            <input type="text" className="form-control" id="staff_phone" value ={this.state.commission} onChange={this.onChangeCommission} required></input>
+            <input type="text" className="form-control" id="staff_phone" value ={this.state.commission} onChange={this.onChangeCommission} ></input>
             <div class="input-group-prepend"><span class="input-group-text" id="basic-addon1">Rs</span></div>
             </div>
                 </div>
             </div>
-
-           
             <br/>  
+            {/* <label for="staff_phone" className="form-label">Commission</label> */}
 
             {/*doctor area end*/}
             </div>

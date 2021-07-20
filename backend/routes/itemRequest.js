@@ -57,6 +57,13 @@ router.route('/getnewRequest').get((req,res)=>{
     .catch(err=>res.status(400).json('Error: '+err));
 })
 
+router.route('/getnewRequestCount').get((req,res)=>{
+    itemRequest.find({status:"new"})
+    .then(itemRequest=>res.json(itemRequest.length) 
+    )
+    .catch(err=>res.status(400).json('Error: '+err));
+})
+
 router.route('/getoldRequest').get((req,res)=>{
     itemRequest.find({status:"old"})
     .then(itemRequest=>res.json(itemRequest) 

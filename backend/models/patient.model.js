@@ -14,9 +14,8 @@ const patientSchema = new Schema({
     children_no: {type:Number, required: true},
     smoking: {type:String, required: true},
     alcohol: {type:String, required: true},    
-    assigned_number: {type:Number, required: false}
-
-
+    assigned_number: {type:String, required: false},
+    assigned_doctor: {type:String, required: false}
 },
 {    timestamp: true,}
 );

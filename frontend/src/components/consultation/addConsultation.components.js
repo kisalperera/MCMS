@@ -75,10 +75,19 @@ constructor(props){
         consultation_date:'',
         next_visit:'',
         treatment_du:0,
-        checkitems:[]
+        checkitems:[],
+        thisdoctor:[]
     }
 }
 
+componentWillReceiveProps(){
+  axios.get('http://localhost:5000/staffs/getDocByID/'+localStorage.getItem("staff_id"))
+      .then(response => { 
+        this.setState({
+          thisdoctor:response.data
+        })
+      })
+}
 
 onChangeCheck(e){
   var item=""
@@ -381,9 +390,10 @@ onSubmit(e){
     ronchi:this.state.ronchi,
     other_exam:this.state.other_exam,
     diagnosis:this.state.diagnosis,
-    investigations:"No investigations",
-    consultation_charge:this.state.consultation_charge,
-    next_vist: this.state.next_visit,
+    investigations:this.state.consult_charge,
+    consultation_charge:this.state.thisdoctor.consult_charge,
+    consultation_commission:this.state.thisdoctor.commission,
+    // next_vist: this.state.next_visit,
     consult_doctor:"Dr."+localStorage.getItem("staff_name")
   }
 axios.post('http://localhost:5000/consultations/addCounsultation', consultation)
@@ -802,10 +812,10 @@ X-RAY  </label>
 <div className="row">
 <div className="col-3"style={{marginRight:30}}>
 <label for="consult_charge" className="form-label">Consultation Charge</label>
-<input type="text" className="form-control" id="item" value ={this.state.consultation_charge} onChange={this.onChangeConsultationCharge} ></input>
+<input type="text" className="form-control" id="item" value ={this.state.thisdoctor.consult_charge} readOnly ></input>
 </div>
 
-<div className="col-3" >
+{/* <div className="col-3" >
 <label for="consult_charge" className="form-label">Next Visit</label>
 <DatePicker
             selected={this.state.next_visit}
@@ -815,7 +825,7 @@ X-RAY  </label>
             minDate={moment().toDate()}
             />  
 
-</div>
+</div> */}
 </div>
 
 

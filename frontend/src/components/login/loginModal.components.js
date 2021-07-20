@@ -67,7 +67,32 @@ console.log("came here");
         }
         })
         .catch(err=>{
+
+            const logindoc={
+                staff_username:this.state.staff_username,
+                staff_password:this.state.staff_password
+            }
+            axios.post('http://localhost:5000/staffs/logindoc', logindoc)
+            .then(response=>{
+                if(response.data=='Password incorrect!'){swal("Password Incorrect!", "Check Your Password", "warning");}
+            else{
+            let role=response.data.staff_role;
+            let name=response.data.staff_name;
+            let id=response.data._id;
+            console.log("response",response);
+            localStorage.setItem('staff_role',role);
+            localStorage.setItem('staff_name',name);
+            localStorage.setItem('staff_id',id);
+
+            window.location='/patientDr'
+            }
+            
+        }).catch(err=>{
             swal("User Not Found!", "Check Your Username", "error");
+
+        })
+
+
         })
         console.log(localStorage.getItem('staff_role'));
 
