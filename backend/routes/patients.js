@@ -108,7 +108,7 @@ router.route('/getPatiendID').post((req,res)=>{
 
 
 router.route('/getLeastNumber').post((req,res)=>{
-    patient.find().sort({
+    patient.find({assigned_doctor:req.body.assigned_doctor}).sort({
         assigned_number:+1,
     })
         .then((patients) =>{ 

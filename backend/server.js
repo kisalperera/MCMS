@@ -37,6 +37,8 @@ const supplierRouter = require('./routes/suppliers');
 const purchaseRouter = require('./routes/purchaseorders');
 const reportRouter = require('./routes/reports');
 const appointmentRouter = require('./routes/appointments');
+const notificationRouter = require('./routes/notification');
+
 
 app.use('/reports',express.static('reports')); 
 
@@ -57,6 +59,8 @@ app.use('/suppliers',supplierRouter);
 app.use('/purchases',purchaseRouter); 
 app.use('/reports',reportRouter); 
 app.use('/appointments',appointmentRouter); 
+app.use('/notifications',notificationRouter); 
+
 
 app.listen(port, () => {
     console.log(`server is running on port: ${port}`)

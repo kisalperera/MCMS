@@ -45,6 +45,7 @@ router.route('/:id').get((req,res)=>{
 
 
 
+
  router.route('/:id').delete((req,res)=>{
      inventoryItem.findByIdAndDelete(req.params.id)
      .then(()=>res.json('Item Deleted'))

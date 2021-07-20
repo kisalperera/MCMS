@@ -135,6 +135,8 @@ confirm(){
                         this.setState({
                             confirmunits:Number(freq)*Number(this.state.prescriptionItems[j].dose)*Number(parseInt(this.state.prescriptionItems[j].duration))/Number(ressult1.data)
                         })
+                        var conun=this.state.confirmunits;
+
                         console.log("freq", freq);
 
                         console.log("units",this.state.confirmunits);
@@ -147,52 +149,71 @@ confirm(){
                             })
 
                         console.log("stocklist",this.state.stockOrder);
-                        try{
-                            for(let i=0;i<this.state.stockOrder.length;i++){
 
-                                if(Number(this.state.confirmunits)==0){
+                        for(let i=0;i<this.state.stockOrder.length;i++){
+
+                                if(Number(conun)==0){
                                     console.log("break");
                                     break;
                                 } 
 
-                                else if(this.state.confirmunits>this.state.stockOrder[i].units){
-
+                                else if(conun>this.state.stockOrder[i].units){
+                                    conun =Number(conun)-Number(this.state.stockOrder[i].units);
                                     axios.post('http://localhost:5000/stocks/reduce/'+this.state.stockOrder[i]._id)
                                     .then(res4=>{
-                                        this.setState({
-                                            confirmunits:Number(this.state.confirmunits)-Number(this.state.stockOrder[i].units)
-                                        },()=>{
-                                            console.log("this stock units", this.state.stockOrder[i].units);
-                                            console.log("whole stock", this.state.confirmunits);
-                                        })
+                                        // this.setState({
+                                        //     confirmunits:Number(this.state.confirmunits)-Number(this.state.stockOrder[i].units)
+                                        // }
+                                        // ,()=>{
+                                        //     console.log("this stock units", this.state.stockOrder[i].units);
+                                        //     console.log("whole stock", this.state.confirmunits);
+                                        // }
+                                        // )
                                     });
                                 }
                                    
                                 else{
-                                    console.log("patrial stock", this.state.confirmunits);
+                                    console.log("patrial stock", conun);
                                     const red={
-                                        units:this.state.confirmunits
+                                        units:conun
                                     }
+
                                     axios.post('http://localhost:5000/stocks/reduceByNum/'+this.state.stockOrder[i]._id,red)
-                                    .then(res4=>{
+                                    .then(res3=>{
+                                        const item={item_name:this.state.prescriptionItems[j].inventoryItem_name}
+                                        axios.post('http://localhost:5000/stocks/getstockunits', item)
+                                        .then(res4=> {
+                                            axios.post('http://localhost:5000/inventoryItems/getItemByVal/'+ this.state.prescriptionItems[j].inventoryItem_name)
+                                        .then(res5=> {
+                                                if(res4.data<res5.data.reorder_level){
+                                                    const not={
+                                                        type:"low stock",
+                                                        not_item:this.state.prescriptionItems[j].inventoryItem_name,
+                                                        not_value:res4.data,
+                                                    }
+                                                    axios.post('http://localhost:5000/notifications/addNot', not)
+                                                    .then(res4=> {})
+
+                                                }
+                                        })
+                                            
+
+
+
+
+                                        });
+
                                         this.setState({
                                             confirmunits:0
                                         })
-                                        throw "error here" 
                                     })
+                                    conun=0;
 
                                     
                                 }
                             }
-                        }
-                        catch(err){
-
-                        }
-                        }
-                        // ,()=>{
-                        //     this.setState({stockOrder:[]})
-                        // }
-                        )
+                            
+                        })
                     });
                   }
             }
@@ -262,11 +283,6 @@ confirm(){
         
     })
 
-
-    // this.setState({
-    //     number:Number(this.state.number)+1
-    // },()=>{this.onClickSearch();
-    // })
 }
 
 checkLevel(itemname,freq,dose,dur){
@@ -339,11 +355,9 @@ const check={
             if(units>response.data){
                 alert("Not Enough Stocks!")
             }else{
-
                 this.setState({
                     externalPrescriptionItems:this.state.externalPrescriptionItems.filter(el=>el.inventoryItem_name!==itemname)
                 })
-                
                 this.setState({
                     prescriptionItems: [...this.state.prescriptionItems, ...[
                         {prescription_id:id,

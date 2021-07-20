@@ -71,7 +71,7 @@ export default class ShowConsultationList extends Component {
       marital:'',
       occupation:'',
       leastpatient:[],
-      val:0,
+      val:'',
       consultations: [],
       patient_id:'',
       assigned_number:0,
@@ -128,10 +128,10 @@ allergyModal(){
 }
 
   onChangeNumber(e){
-    const re = /^[0-9\b]+$/;
-    if (e.target.value === '' || re.test(e.target.value)) {
+    
+
         this.setState({ val: e.target.value })
-    }
+    
 }
   
   onClickSearch(){
@@ -139,7 +139,7 @@ allergyModal(){
       assigned_number:this.state.val
   }
   console.log(num.assigned_number);
-  if(this.state.val>0){
+  // if(Number(this.state.val)>0){
       
   axios.post('http://localhost:5000/patients/getPatiendID',num)
   .then(res=>{
@@ -171,6 +171,8 @@ allergyModal(){
 
   }).catch(err =>{
         swal("Patient Not Found!", "Try a different number", "error");
+        localStorage.setItem("thisPatient",'No');
+
         this.setState({
           patient:[],
           patientName:'',
@@ -181,7 +183,7 @@ allergyModal(){
           consultations:[],
         })
       })
-}
+
 
   }
 componentDidMount(){
