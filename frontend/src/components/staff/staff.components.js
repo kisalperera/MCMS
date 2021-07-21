@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import '../../App.css';
 import AddStaff from "./addStaff.components";
 import Payments from "./payments.components";
+import '../../App.css';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 

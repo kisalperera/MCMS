@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const paymentSchema = new Schema({
     date: {type:Date, required: true}, 
     staff_id: {type:String, required: true},    
-    amount:{type:String, required: true},   
+    amount:{type:Number, required: true},   
 },
 {    timestamp: true,}
 );

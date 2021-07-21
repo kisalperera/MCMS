@@ -84,7 +84,34 @@ console.log(this.state.patients.length)
 }
 
 assignNumber(id){
-    this.setState({addModalShow:true})
+
+    axios.get('http://localhost:5000/patients/getPatientByID/'+id)
+    .then(response => {  
+        if(response.data.assigned_number==0){
+            this.setState({addModalShow:true})
+        }
+        else{    swal("Already Assigned!", "Want to assign a different Number", "warning",{
+            buttons: {
+                Yes: {value:"Yes"},
+                No: {value: "No" }
+              }
+        })
+        .then((value) => {
+            switch (value) {
+           
+              case "Yes":
+                this.setState({addModalShow:true})
+
+                break;
+           
+              case "No":
+                break;
+           
+              
+            }
+          });
+    }
+       })   
 
 localStorage.setItem('consideredPatint',id);
     

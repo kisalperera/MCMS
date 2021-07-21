@@ -99,8 +99,8 @@ export default class AssignNumbers extends Component {
         </Modal.Body>
       
         <Modal.Footer>
-          <Button variant="secondary" onClick={this.props.onHide}>Close</Button>
-          <Button variant="primary" onClick={this.onConfirm}>Confirm</Button>
+          <Button variant="secondary"  onClick={this.props.onHide}>Close</Button>
+          <Button variant="primary"disabled={!this.state.selectedDoc} onClick={this.onConfirm}>Confirm</Button>
         </Modal.Footer>
       </Modal>
     );

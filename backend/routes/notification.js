@@ -5,6 +5,7 @@ let notification = require('../models/notifications.model');
 router.route('/addNot').post((req,res) => {
     notification.findOneAndDelete({not_item:req.body.not_item})
     .then(()=>{
+        console.log("found One")
         const type = req.body.type;
         const not_item = req.body.not_item;
         const not_value = req.body.not_value;
@@ -24,6 +25,8 @@ router.route('/addNot').post((req,res) => {
         .catch(err => res.status(400).json('error:' + err));
     })
     .catch(err => {
+
+
         const type = req.body.type;
         const not_item = req.body.not_item;
         const not_value = req.body.not_value;
@@ -66,7 +69,18 @@ router.route('/getNotbyID/:value').get((req,res)=>{
 })
 
 
+router.route('/getNot').get((req,res)=>{
+    notification.find()
+    .then(notification=>res.json(notification) 
+    )
+    .catch(err=>res.status(400).json('Error:'));
+})
 
-
+router.route('/getByStockID').post((req,res)=>{
+    notification.findOne({not_item:req.body.stock_id})
+    .then(stock=>res.json(stock) 
+    )
+    .catch(err=>res.status(400).json('Error: '+err));
+})
 
 module.exports = router;

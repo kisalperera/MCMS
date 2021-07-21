@@ -38,5 +38,11 @@ router.route('/getcheckout/').post((req,res)=>{
     .catch(err=>res.status(400).json('Error: '+err));
 })
 
+router.route('/getcheck/:id').get((req,res)=>{
+    checkout.findOne({consultation_id:req.params.id})
+    .then(checkout=>res.json(checkout) 
+    )
+    .catch(err=>res.status(400).json('Error: '+err));
+})
 
 module.exports = router;

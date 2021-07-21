@@ -7,6 +7,7 @@ import AddStock from './addStock.components';
 
 const Stock = props=>(
     <tr>
+        <td>{props.stock.stock_id}</td>
         <td>{props.stock.manufacture_date.substring(0,10)}</td>
         <td>{props.stock.expire_date.substring(0,10)}</td>
         <td>{props.stock.dose}</td>
@@ -78,6 +79,7 @@ stockList(){
            <table className="table" >
                <thead className="thead-light">
                    <tr>
+                   <th>Stock ID</th>
                        <th>Manufacture Date</th>
                        <th>Expire Date</th>
                        <th>Units </th>

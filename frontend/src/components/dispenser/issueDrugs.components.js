@@ -72,6 +72,8 @@ class IssueDrugs extends Component {
     this.onChangeTotal =this.onChangeTotal.bind(this);
     this.confirm =this.confirm.bind(this);
     this.checkLevel =this.checkLevel.bind(this);
+    this.onconfirmfinish =this.onconfirmfinish.bind(this);
+    this.confirmExternalP =this.confirmExternalP.bind(this);
 
 
 
@@ -95,10 +97,89 @@ class IssueDrugs extends Component {
         consultation:[],
         confirmInternalID:'',
         patient_name:'',
-        gender:''
+        gender:'',
+        stillatDoc:'',
+        allnumbers:[],
+        currentIndex:0
+
 
     };
   }
+
+  onconfirmfinish(){
+    var confirm = new Promise((resolved,reject)=>{
+        this.confirm();
+        resolved ("done")
+    })
+    confirm.then(res=>{
+        swal("Issue Confirmed", "Search the next patient", "success");
+        this.setState({
+            number:this.state.allnumbers[this.state.currentIndex+1].assigned_number,
+            currentIndex:this.state.currentIndex+1
+        },()=>{
+            this.onClickSearch();
+        })
+
+    })
+  }
+confirmExternalP(){
+    axios.get('http://localhost:5000/externalPrescriptions/getExternalPrescription/'+this.state.consultation._id)
+    .then(response1 => {
+        console.log("EP:", response1.data)
+
+        
+        axios.delete('http://localhost:5000/externalPrescriptionItems/deleteExternalItems/' +response1.data._id)
+        .then(response2 => {
+            if(this.state.externalPrescriptionItems.length>0){
+                for(let j=0;j<this.state.externalPrescriptionItems.length;j++){
+                    const InPres={
+                      externalPrescription_id:response1.data._id,
+                      inventoryItem_name:this.state.externalPrescriptionItems[j].inventoryItem_name,
+                      frequency:this.state.externalPrescriptionItems[j].frequency,   
+                      dose:this.state.externalPrescriptionItems[j].dose,
+                      duration:this.state.externalPrescriptionItems[j].duration,
+                      price:this.state.externalPrescriptionItems[j].price
+                    }
+                    axios.post('http://localhost:5000/externalPrescriptionItems/addExternalPrescriptionItems', InPres)
+                    .then(response5=> console.log(response5.data));
+                  }
+            }
+            else{
+                axios.delete('http://localhost:5000/externalPrescriptions/deleteExternalPrescription/' +response1.data._id)
+                .then(response4 => {console.log(response4.data)})
+            }console.log('external done');
+
+        });
+
+    })
+    .catch(err=>{
+        if(this.state.externalPrescriptionItems.length>0){
+
+            const add ={
+                consultation_id:this.state.consultation._id
+            }
+            axios.post('http://localhost:5000/externalPrescriptions/addExternalPrescription', add)
+            .then(resp=> {
+                for(let j=0;j<this.state.externalPrescriptionItems.length;j++){
+                    const InPres={
+                      externalPrescription_id:resp.data,
+                      inventoryItem_name:this.state.externalPrescriptionItems[j].inventoryItem_name,
+                      frequency:this.state.externalPrescriptionItems[j].frequency,   
+                      dose:this.state.externalPrescriptionItems[j].dose,
+                      duration:this.state.externalPrescriptionItems[j].duration,
+                      price:this.state.externalPrescriptionItems[j].price
+                    }
+                    axios.post('http://localhost:5000/externalPrescriptionItems/addExternalPrescriptionItems', InPres)
+                    .then(resp2=> console.log(resp2.data));
+                  }
+
+            });
+
+        }
+        
+    })
+}
+
 
 confirm(){
 
@@ -187,7 +268,7 @@ confirm(){
                                         .then(res5=> {
                                                 if(res4.data<res5.data.reorder_level){
                                                     const not={
-                                                        type:"low stock",
+                                                        type:"Low Stock",
                                                         not_item:this.state.prescriptionItems[j].inventoryItem_name,
                                                         not_value:res4.data,
                                                     }
@@ -197,10 +278,6 @@ confirm(){
                                                 }
                                         })
                                             
-
-
-
-
                                         });
 
                                         this.setState({
@@ -208,8 +285,6 @@ confirm(){
                                         })
                                     })
                                     conun=0;
-
-                                    
                                 }
                             }
                             
@@ -222,66 +297,14 @@ confirm(){
                 axios.delete('http://localhost:5000/prescriptions/deletePrescription/' +res1.data._id)
                 .then(res3 => {console.log(res3.data)})
             }console.log('internal done');
+
+            this.confirmExternalP();
         }); 
     })
     .catch(err=>{console.log(err);})
 
 
-    axios.get('http://localhost:5000/externalPrescriptions/getExternalPrescription/'+this.state.consultation._id)
-    .then(response1 => {
-        console.log("EP:", response1.data)
-
-        
-        axios.delete('http://localhost:5000/externalPrescriptionItems/deleteExternalItems/' +response1.data._id)
-        .then(response2 => {
-            if(this.state.externalPrescriptionItems.length>0){
-                for(let j=0;j<this.state.externalPrescriptionItems.length;j++){
-                    const InPres={
-                      externalPrescription_id:response1.data._id,
-                      inventoryItem_name:this.state.externalPrescriptionItems[j].inventoryItem_name,
-                      frequency:this.state.externalPrescriptionItems[j].frequency,   
-                      dose:this.state.externalPrescriptionItems[j].dose,
-                      duration:this.state.externalPrescriptionItems[j].duration,
-                      price:this.state.externalPrescriptionItems[j].price
-                    }
-                    axios.post('http://localhost:5000/externalPrescriptionItems/addExternalPrescriptionItems', InPres)
-                    .then(response5=> console.log(response5.data));
-                  }
-            }
-            else{
-                axios.delete('http://localhost:5000/externalPrescriptions/deleteExternalPrescription/' +response1.data._id)
-                .then(response4 => {console.log(response4.data)})
-            }console.log('external done');
-
-        });
-
-    })
-    .catch(err=>{
-        if(this.state.externalPrescriptionItems.length>0){
-
-            const add ={
-                consultation_id:this.state.consultation._id
-            }
-            axios.post('http://localhost:5000/externalPrescriptions/addExternalPrescription', add)
-            .then(resp=> {
-                for(let j=0;j<this.state.externalPrescriptionItems.length;j++){
-                    const InPres={
-                      externalPrescription_id:resp.data,
-                      inventoryItem_name:this.state.externalPrescriptionItems[j].inventoryItem_name,
-                      frequency:this.state.externalPrescriptionItems[j].frequency,   
-                      dose:this.state.externalPrescriptionItems[j].dose,
-                      duration:this.state.externalPrescriptionItems[j].duration,
-                      price:this.state.externalPrescriptionItems[j].price
-                    }
-                    axios.post('http://localhost:5000/externalPrescriptionItems/addExternalPrescriptionItems', InPres)
-                    .then(resp2=> console.log(resp2.data));
-                  }
-
-            });
-
-        }
-        
-    })
+    
 
 }
 
@@ -397,10 +420,12 @@ this.setState({
 }
 
 componentDidMount(){
-    axios.get('http://localhost:5000/patients/getLeastNumber')
+    axios.get('http://localhost:5000/patients/getallNumbers')
     .then(res=>{
-        // this.setState({number:res.data})
-                this.setState({number:2})
+console.log(res.data)               
+ this.setState({allnumbers:res.data,
+     number:res.data[0].assigned_number,
+    currentIndex:0})
 
         this.onClickSearch();
     })
@@ -449,7 +474,17 @@ onClickSearch(){
             )
             axios.post('http://localhost:5000/consultations/treatmentConsultation/'+res1.data._id)
             .then(resp1 => {   
-                     
+
+                axios.get('http://localhost:5000/checkouts/getcheck/'+resp1.data._id)
+                    .then(resp2 => { 
+                        if(resp2.data==null){
+                            this.setState({stillatDoc:"" }) 
+                        }
+                        else{
+                            this.setState({stillatDoc:"yes"}) 
+                        }
+                     }).catch(err=>{console.log(err)})
+
                     axios.get('http://localhost:5000/externalPrescriptions/getExternalPrescription/'+resp1.data._id)
                     .then(response2 => {
                             axios.get('http://localhost:5000/externalPrescriptionItems/getExternalPrescriptionItem/'+response2.data._id)
@@ -534,29 +569,43 @@ externalPrescriptionList(){
 <div className="row ">
          <div className="col-1"style={{marginRight:-30,marginLeft:30}}>
              <input className="form-control" type="text" id="assign" style={{height:50,width:70,marginTop:3}} value={this.state.number} onChange={this.onChangeNumber} textAlign={"Center"}></input>
-         </div><div className="col-3"style={{/*marginLeft:-300,*/marginTop:8}}>
+         </div><div className="col-2"style={{/*marginLeft:-300,*/marginTop:8}}>
              <button className="btn btn-warning"style={{width:100}} onClick={this.onClickSearch} >Search</button>
          </div>
-
+         {(this.state.stillatDoc=="yes")
+         ?<></>
+         :<>
          <div className="col-2" style={{marginTop:15,marginRight:-60,marginLeft:60}}>
              <label ><h5>Total Amount:</h5></label>
          </div>
-
+     
          <div className="col-2" style={{marginTop:8,marginRight:100}}>
          <div class="input-group mb-3" >
          <div class="input-group-prepend"><span class="input-group-text" id="basic-addon1">Rs.</span></div>
-
+     
              <input type="text" className="form-control"style={{width:150,fontWeight:700}} value={this.state.total} readonly></input>
-</div>
+     </div>
          </div>
-
+     
          <div className="col-3" style={{marginTop:8}}>
              <button className="btn btn-success"style={{width:200}} onClick={this.confirm}>Confirm</button>
+         </div></>
+
+         }
+
+
          </div>
-    
-       </div><br/><br/>
-<div className="row">
-<div className="col-8">
+
+       
+       
+       <br/><br/>
+<div className="row" >
+<div className="col-8" hidden={!this.state.stillatDoc}>
+
+<h5 className="container">Patient have not finished the consultation process!</h5>
+</div>
+
+<div className="col-8" hidden={this.state.stillatDoc}>
 < div className="p-3 border bg-light" >
 <h5>Internal Prescription</h5>
            <table className="table" id="table">

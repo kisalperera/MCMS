@@ -10,7 +10,7 @@ const staffSchema = new Schema({
     staff_phone:{type:String, required: true},
     staff_password:{type:String, required: true},
     staff_role:{type:String, required: true},
-    staff_salary:{type:String, required: true},
+    staff_salary:{type:Number, required: true},
 
 },
 {    timestamp: true,}

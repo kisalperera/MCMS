@@ -8,7 +8,7 @@ router.route('/addPay').post((req,res) => {
 
     const date=req.body.date;
     const staff_id=req.body.staff_id;
-    const amount=req.body.amount;
+    const amount=Number(req.body.amount);
     
     const newpayment = new payment({
         date,
@@ -90,7 +90,7 @@ router.route('/addStaff').post((req,res) => {
     const staff_phone=req.body.staff_phone;
     const staff_password=req.body.staff_password;
     const staff_role=req.body.staff_role;
-    const staff_salary=req.body.staff_salary;
+    const staff_salary=Number(req.body.staff_salary);
 
     const newstaff = new staff({
         staff_username,

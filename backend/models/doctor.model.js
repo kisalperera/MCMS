@@ -13,8 +13,8 @@ const docSchema = new Schema({
     title:{type:String, required: true},
     speciality:{type:String, required: true},
     reg_no:{type:String, required: true},
-    consult_charge:{type:String, required: true},
-    commission:{type:String, required: true},
+    consult_charge:{type:Number, required: true},
+    commission:{type:Number, required: true},
     assiged_number:{type:String, required: true},
 
 },

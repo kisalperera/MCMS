@@ -48,10 +48,11 @@ onChangeUnits(e){
 
 onSubmit(e){
     e.preventDefault();
-
+var thisDay=new Date();
     const stock ={
         item_name:localStorage.getItem('itemforStocks'),
-        stock_date:Date().toLocaleString(),
+        stock_date:new Date(),
+        today:thisDay.toLocaleDateString(),
         manufacture_date:this.state.man_date,
         expire_date:this.state.ex_date,
         units:this.state.units,
@@ -73,6 +74,7 @@ onCancel(){
     })
     this.props.onHide();
 }
+
 
 
    render(){

@@ -6,8 +6,8 @@ const inventoryItemSchema = new Schema({
     item_name: {type:String, required: true},
     strength: {type:String, required: true},
     category: {type:String, required: true},
-    unit_price: {type:String, required: true},
-    selling_price: {type:String, required: true},
+    unit_price: {type:Number, required: true},
+    selling_price: {type:Number, required: true},
     quantity:{type:Number},
     reorder_level:{type:String},
 

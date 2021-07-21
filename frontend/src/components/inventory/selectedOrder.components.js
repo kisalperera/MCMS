@@ -135,6 +135,7 @@ confirm(name,units,manufac,expire){
     axios.get('http://localhost:5000/purchases/getpurchaseByIDDetails/'+localStorage.getItem("currentOrder"))
     .then(res=>{
         console.log(res.data)
+        var thisDay=new Date();
 
         const stock={
             item_name:name,
@@ -142,6 +143,7 @@ confirm(name,units,manufac,expire){
             manufacture_date:manufac,
             expire_date:expire,
             units:units,
+            today:thisDay.toLocaleDateString(),
             supplier:res.data.supplier_name
         }
         axios.post('http://localhost:5000/stocks/addstock',stock)

@@ -3,26 +3,57 @@ let stock = require('../models/stock.model');
 
 
 router.route('/addstock').post((req,res) => {
-    const item_name = req.body.item_name;
-    const stock_date = req.body.stock_date;
-    const manufacture_date = req.body.manufacture_date;
-    const expire_date = req.body.expire_date;
-    const units = req.body.units;
-    const supplier = req.body.supplier;
+    stock.find()
+    .then(stocks=>{
+        var num=0;
+        for(let i=0;i<stocks.length;i++){
+            if(stocks[i].stock_date.toLocaleDateString()==req.body.today){
+                num++;
+            }
+        }
+        const item_name = req.body.item_name;
+        const stock_date = req.body.stock_date;
+        const manufacture_date = req.body.manufacture_date;
+        const expire_date = req.body.expire_date;
+        const units = req.body.units;
+        const supplier = req.body.supplier;
+        const stock_id = "St-"+req.body.today+"-"+Number(num+1);
+
+    
+        const newstock = new stock({
+            item_name,
+            stock_date,
+            manufacture_date,
+            expire_date,
+            units,
+            supplier,
+            stock_id
+        });
+        newstock.save()
+        .then(() => res.json(newstock._id))
+        .catch(err => res.status(400).json('error:' + err));
+    }) 
+    
 
 
-    const newstock = new stock({
-        item_name,
-        stock_date,
-        manufacture_date,
-        expire_date,
-        units,
-        supplier
-    });
-    newstock.save()
-    .then(() => res.json(newstock._id))
-    .catch(err => res.status(400).json('error:' + err));
+
+
+    
 });
+
+router.route('/get/:id').get((req,res)=>{
+    stock.findById(req.params.id)
+    .then(stock=>res.json(stock) 
+    )
+    .catch(err=>res.status(400).json('Error: '+err));
+})
+
+router.route('/getall').get((req,res)=>{
+    stock.find()
+    .then(stock=>res.json(stock) 
+    )
+    .catch(err=>res.status(400).json('Error: '+err));
+})
 
 
 router.route('/getstock/:value').get((req,res)=>{
@@ -31,6 +62,8 @@ router.route('/getstock/:value').get((req,res)=>{
     )
     .catch(err=>res.status(400).json('Error: '+err));
 })
+
+
 
 // router.route('/getstockByDose').post((req,res)=>{
 //     stock.find({item_name:req.params.item_name}&&{dose:req.params.dose})

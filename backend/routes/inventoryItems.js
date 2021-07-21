@@ -17,8 +17,8 @@ router.route('/add').post((req,res) => {
     const item_name = req.body.item_name;
     const category = req.body.category;
     const strength=req.body.strength;
-    const unit_price=req.body.unit_price;
-    const selling_price=req.body.selling_price;
+    const unit_price=Number(req.body.unit_price);
+    const selling_price=Number(req.body.selling_price);
     const reorder_level=req.body.reorder_level;
 
     

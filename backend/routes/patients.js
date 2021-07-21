@@ -21,6 +21,21 @@ router.route('/getNextNumber').post((req,res)=>{
         .catch(err => res.status(400).json('error:' + err));
 } );
 
+router.route('/getallNumbers').get((req,res)=>{
+    patient.find({"assigned_number":{$ne: "0"}}).sort({
+        assigned_number:+1,
+    })
+        .then(patients =>{ 
+            // console.log(patients)
+
+            // let matches =patients[0].assigned_number.match(/(\d+)/);
+            // let nextNumber = Number(matches[0]) +1;
+            
+            res.json(patients)
+        })
+        .catch(err => res.status(400).json('error:' + err));
+} );
+
 router.route('/addPatient').post((req,res) => {
     const patient_id = Number(req.body.patient_id);
     const patient_name = req.body.patient_name;
@@ -91,7 +106,7 @@ router.route('/assignNumber/:id').post((req,res)=>{
     patient.findById(req.params.id)
     .then(patient=>{
         patient.assigned_doctor =req.body.assigned_doctor  ;
-        patient.assigned_number =Number(req.body.assigned_number)  ;
+        patient.assigned_number =req.body.assigned_number ;
         patient.save()
         .then(()=>res.json('Number Assigned!'))
         .catch(err=>res.status(400).json('Error:' +err));

@@ -9,7 +9,8 @@ const stockSchema = new Schema({
     expire_date:{type:Date, required: false},
     units: {type:Number, required: true},
     supplier: {type:String, required: true},
-    
+    stock_id: {type:String, required: true},
+
 },
 {    timestamp: true,}
 );

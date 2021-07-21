@@ -83,7 +83,9 @@ export default class ShowConsultationList extends Component {
       allergyShow:false,
       ongoingid:'',
       reportmodal:'',
-      passingArray:[]
+      passingArray:[],
+      docassigned:'A',
+      value:''
     };
   }
 
@@ -127,16 +129,18 @@ allergyModal(){
   this.setState({allergyShow:true});
 }
 
-  onChangeNumber(e){
-    
-
-        this.setState({ val: e.target.value })
+onChangeNumber(e){
+  let amount = parseFloat(e.target.value);
+  if (isNaN(amount) || amount < 0) {amount = 0;}
+  this.setState({val: amount,
+    value:this.state.docassigned+amount
+  });  
     
 }
   
   onClickSearch(){
     const num={
-      assigned_number:this.state.val
+      assigned_number:this.state.value
   }
   console.log(num.assigned_number);
   // if(Number(this.state.val)>0){
@@ -181,12 +185,22 @@ allergyModal(){
           marital:'',
           occupation:'',
           consultations:[],
+          thisdoctor:[]
         })
       })
 
 
   }
 componentDidMount(){
+  axios.get('http://localhost:5000/staffs/getDocByID/'+localStorage.getItem('staff_id'))
+  .then(res1=>{
+      this.setState({
+        thisdoctor:res1.data,
+        docassigned:res1.data.assiged_number
+      })
+console.log(this.state.thisdoctor)
+  })
+
   axios.get('http://localhost:5000/patients/getLeastNumber')
   .then(res=>{
       this.setState({val:res.data})
@@ -238,9 +252,19 @@ render() {
     return (
 <div>
         <div className="row ">
-         <div className="col-1"style={{marginRight:-30,marginLeft:30}}>
-             <input className="form-control" type="text" id="assign" style={{height:50,width:70,marginTop:3}} value={this.state.val} onChange={this.onChangeNumber} textAlign={"Center"}></input>
-         </div><div className="col-6"style={{/*marginLeft:-300,*/marginTop:8}}>
+         <div className="col-1"style={{marginRight:30,marginLeft:30}}>
+         <div className="row" >
+         <div className="col-1" style={{marginRight:10}} >
+         <span style={{height:50,width:40,marginTop:3}} class="input-group-text" id="basic-addon1">{this.state.docassigned}</span>
+         </div>
+         <div className="col-1" >
+         <input className="form-control" type="text" id="assign" style={{height:50,width:50,marginTop:3}} value={this.state.val} onChange={this.onChangeNumber} textAlign={"Center"}></input>
+
+         </div>
+
+         </div>
+
+         </div><div className="col-4"style={{/*marginLeft:-300,*/marginTop:8}}>
              <button className="btn btn-warning"style={{width:100}} onClick={this.onClickSearch} >Search</button>
          </div>
          <div className="col"style={{/*marginLeft:700,*/marginTop:8}}><button type="button" className="btn btn-success"  style={{width:150}}

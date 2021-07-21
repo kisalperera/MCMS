@@ -7,6 +7,38 @@ import moment  from 'moment';
 import swal from '@sweetalert/with-react';
 
 
+const InternalP = props=>(
+  <tr> 
+  
+      <td>{props.internalP.itemName}</td>
+      <td>{props.internalP.frequency}</td>
+      <td>{props.internalP.dose}</td>
+      <td>{props.internalP.duration}</td>
+      <td>Price: Rs {props.internalP.price}</td>
+
+     
+      <td>
+      <button class="btn btn-danger" style={{width: 90}} onClick={()=>{props.remove(props.internalP.itemName)}}>Remove</button>    
+      </td>
+  </tr>
+)
+
+const ExternalP = props=>(
+  <tr> 
+  
+      <td>{props.externalP.itemName}</td>
+      <td>{props.externalP.frequency}</td>
+      <td>{props.externalP.dose}</td>
+      <td>{props.externalP.duration}</td>
+      <td>Price: Rs {props.externalP.price}</td>
+
+      <td>
+      <button class="btn btn-danger" style={{width: 90}} onClick={()=>{props.removeE(props.externalP.itemName)}}>Remove</button>    
+      </td>
+  </tr>
+)
+
+
 export default class addconsult extends Component {
 constructor(props){
     super(props);
@@ -30,34 +62,37 @@ constructor(props){
     this.onChangeTreatmentDu = this.onChangeTreatmentDu.bind(this);
     this.onChangeTimes = this.onChangeTimes.bind(this);
     this.onChangeCheck = this.onChangeCheck.bind(this);
+    this.onClickAdd = this.onClickAdd.bind(this);
 
     this.onSubmit = this.onSubmit.bind(this);
     this.onCancel = this.onCancel.bind(this);
     this.addRow = this.addRow.bind(this);
-    this.suggest = this.suggest.bind(this);
     this.itemonblur = this.itemonblur.bind(this);
     this.checkAllergy = this.checkAllergy.bind(this);
+    this.internalItemList = this.internalItemList.bind(this);
+    this.externalItemList = this.externalItemList.bind(this);
+    this.remove = this.remove.bind(this);
+    this.removeE = this.removeE.bind(this);
+
+
 
 
 
     this.state ={
 
       item_type:'⮟',
-
+      frequency:'TDS',
       internalP:[],
-      internalPSize:0,
+      internalPSize:'',
       externalP:[],
-      externalPSize:0,
+      externalPSize:'',
       options:[],
       dose:'',
-      times:0,
-      checkPrice:0,
+      times:3,
       treatment_item:'',
-      length:'',
       items:[],
       consideringItem:[],
-        consult_id:'',
-        patinet_id:'',
+      consult_id:'',
         complaint:'',
         complaint_duration:'',
         pulse:0,
@@ -87,6 +122,118 @@ componentWillReceiveProps(){
           thisdoctor:response.data
         })
       })
+      axios.get('http://localhost:5000/inventoryItems/')
+      .then(response => {                                                                       
+          this.setState({
+            items: response.data
+          })
+        })
+      
+}
+
+remove(item){
+  this.setState({
+    internalP:this.state.internalP.filter(el=>el.itemName!==item)
+  })
+}
+
+removeE(item){
+  this.setState({
+    externalP:this.state.externalP.filter(el=>el.itemName!==item)
+  })
+}
+
+onClickAdd(){
+
+
+const check={
+  item_name:this.state.treatment_item
+}
+axios.post('http://localhost:5000/inventoryItems/getItem',check)
+     .then(res=> {
+       this.setState({
+         consideringItem:res.data
+       })
+      if(res.data.item_name==this.state.treatment_item){
+
+        axios.post('http://localhost:5000/stocks/getstockunits',check)
+          .then(res1=> {
+            console.log(this.state.consideringItem.strength);
+            console.log(this.state.consideringItem.selling_price);
+            
+            var x=parseFloat(this.state.dose)/parseFloat(this.state.consideringItem.strength)*Number(this.state.times)*Number(this.state.treatment_du);
+            var price=parseFloat(x)*Number(this.state.consideringItem.selling_price);
+            console.log(x);
+            console.log(price);
+            
+            if(x<res1.data){
+              // document.getElementById('table1').appendChild(temp_row);
+              this.setState({
+                internalP: [...this.state.internalP, ...[
+                     {itemName:this.state.treatment_item, 
+                      frequency:this.state.frequency,
+                      dose:this.state.dose,
+                      duration:this.state.treatment_du+" days",
+                      price:price,
+                    }] 
+                    ] ,
+                  internalPSize:Number(this.state.internalPSize) +Number(1),
+                  treatment_item:'',
+                  frequency:"TDS",
+                  dose:'',
+                  treatment_du:''
+                  })
+                  
+                 
+            }
+            else{
+              this.setState({
+                externalP: [...this.state.externalP, ...[
+                     {itemName:this.state.treatment_item, 
+                      frequency:this.state.frequency,
+                      dose:this.state.dose,
+                      duration:this.state.treatment_du+" days",
+                      price:price,
+                    }] 
+                    ] ,
+                externalPSize:Number(this.state.externalPSize) +Number(1),
+                treatment_item:'',
+                  frequency:"TDS",
+                  dose:'',
+                  treatment_du:''
+                  })
+            }
+          })                     
+      }
+      
+     
+    })
+    .catch(err=>{alert("Invalid Item!");
+    this.setState({
+      treatment_item:'',
+      frequency:3,
+      dose:'',
+      duration:''
+    })
+  })
+
+
+}
+
+internalItemList(){
+  if(this.state.internalPSize>0){
+    return this.state.internalP.map(current =>{
+        return<InternalP internalP={current} remove={this.remove} key={current._id}/>;
+    })
+}
+}
+externalItemList(){
+  if(this.state.externalPSize>0){
+    return this.state.externalP.map(current =>{
+        return<ExternalP externalP={current} removeE={this.removeE} key={current._id}/>;
+    })
+}
+
 }
 
 onChangeCheck(e){
@@ -112,6 +259,9 @@ checkAllergy(){
 }
 
 onChangeTimes(e){
+  this.setState({
+    frequency:e.target.value
+  })
 if(e.target.value=="EOD"){this.setState({times:Number(1/2)})}
 if(e.target.value=="Manne"||e.target.value=="Noctay"||e.target.value=="Daily"){this.setState({times:Number(1)})}
 if(e.target.value=="BD"){this.setState({times:Number(2)})}
@@ -133,22 +283,7 @@ itemonblur(){
         }
         else{
 
-          const item={
-            item_name:this.state.treatment_item
-          }
-        
-          axios.post('http://localhost:5000/inventoryItems/Check',item)
-            .then(response => {
-              if(response.data=="Pill"||response.data=="cream")this.setState({item_type:'mg'})
-              if(response.data=="Syrup")this.setState({item_type:'ml'})
-            })
-        
-          axios.post('http://localhost:5000/inventoryDoses/getItemDose',item)
-            .then(response => {
-             this.setState({
-               options:response.data
-             })
-            })
+          
         }
       })
 
@@ -173,7 +308,24 @@ onChangeTreatmentDose(e){
 onChangeTreatmentItem(e){
   this.setState({
     treatment_item :e.target.value
-});
+})
+const item={
+  item_name:e.target.value
+}
+
+axios.post('http://localhost:5000/inventoryItems/Check',item)
+  .then(response => {
+    if(response.data=="Pill"||response.data=="cream")this.setState({item_type:'mg'})
+    if(response.data=="Syrup")this.setState({item_type:'ml'})
+  })
+
+axios.post('http://localhost:5000/inventoryDoses/getItemDose',item)
+  .then(response => {
+   this.setState({
+     options:response.data,
+     dose:response.data[0]
+   })
+  })
 }
 
 onChangeNextVisit(date){
@@ -345,33 +497,7 @@ addRow()
 
 }
 
-suggest(){
-     
-    axios.get('http://localhost:5000/inventoryItems/')
-    .then(response => {                                                                       
-        this.setState({
-          items: response.data
-        })
-        axios.get('http://localhost:5000/inventoryItems/itemlength')
-         .then(res=> {
-          this.setState({
-            length: res.data
-          })
-          for(var i=0;i<this.state.length;i++){
-            let x = "option" + i;
-            x = document.createElement('option');
-            x.innerHTML = this.state.items[i].item_name;      
-            document.getElementById('datalistOptions').appendChild(x);
-          }
 
-        })
-        .catch((error) =>{
-          console.log(error);})
-      })
-    .catch((error) =>{
-        console.log(error);})
-
-}
 
 onSubmit(e){
   e.preventDefault();
@@ -390,7 +516,7 @@ onSubmit(e){
     ronchi:this.state.ronchi,
     other_exam:this.state.other_exam,
     diagnosis:this.state.diagnosis,
-    investigations:this.state.consult_charge,
+    investigations:this.state.checkitems,
     consultation_charge:this.state.thisdoctor.consult_charge,
     consultation_commission:this.state.thisdoctor.commission,
     // next_vist: this.state.next_visit,
@@ -454,7 +580,6 @@ onCancel(){
 }
 
    render(){
-    // document.body.addEventListener("click",this.suggest,{once:true});
 
     const{crepitation}=this.state;
     const{ronchi}=this.state;
@@ -639,7 +764,7 @@ onCancel(){
 <textarea style={{height:70}} className="form-control" id="other_exam" value ={this.state.other_exam} onChange={this.onChangeOtherExam}  ></textarea>
 <br/>
 <label for="diagnosis" className="form-label" >Diagnosis</label>
-<input type="text" style={{height:70}} list="thisdiagnosis" id="diag" className="form-control" id="diagnosis" onClick={this.suggest} value ={this.state.diagnosis} onChange={this.onChangeDiagnosis}  ></input>
+<input type="text" style={{height:70}} list="thisdiagnosis" id="diag" className="form-control" id="diagnosis" value ={this.state.diagnosis} onChange={this.onChangeDiagnosis}  ></input>
 <datalist id="thisdiagnosis" >
   <option>Viral Fever</option>
   <option>Gastroentraritis</option>
@@ -730,10 +855,16 @@ X-RAY  </label>
 
 <div className="row">
 <label for="table_item" className="form-label">Item</label>
-<input type="text" className="form-control" id="treatment_item" list="datalistOptions" onBlur={this.itemonblur} value ={this.state.treatment_item} onChange={this.onChangeTreatmentItem} style={{marginLeft:10,width:600}}></input>
-<datalist id="datalistOptions" >
-</datalist>
+<select type="text" className="form-control" id="treatment_item" list="datalistOptions" onBlur={this.itemonblur} value ={this.state.treatment_item} onChange={this.onChangeTreatmentItem} style={{marginLeft:10,width:600}}>
 
+{/* <datalist id="datalistOptions" > */}
+<option selected hidden></option>
+{this.state.items.map(item=>{
+        return<option value={item.item_name} >{item.item_name}</option>
+        })
+        }
+        </select>
+{/* </datalist> */}
 
 
 </div>
@@ -742,14 +873,14 @@ X-RAY  </label>
 <div className="row">
 <div className="col-2" style={{marginRight:20}}>
 <label for="table_freq" className="form-label">Frequency</label>
-<select className="form-control" aria-label=".form-select-lg example" id="table_freq" onChange={this.onChangeTimes}>
-<option selected>TDS</option>
-            <option >BD</option>
-            <option >6 Hourly</option>
-            <option selected>Manne</option>
-            <option >Noctay</option>
-            <option >Daily</option>
-            <option >EOD</option>
+<select className="form-control" aria-label=".form-select-lg example" id="table_freq" value={this.state.frequency} onChange={this.onChangeTimes}>
+<option selected value={"TDS"}>TDS</option>
+            <option value={"BD"} >BD</option>
+            <option value={"6 Hourly"}>6 Hourly</option>
+            <option value={"Manne"}>Manne</option>
+            <option value={"Noctay"}>Noctay</option>
+            <option value={"Daily"}>Daily</option>
+            <option value={"EOD"}>EOD</option>
 
             </select>
 </div>
@@ -795,15 +926,23 @@ X-RAY  </label>
 
 <div className="col" style={{marginLeft: -400, marginTop:55}}>
 
-<button className="btn btn-success" type="button" style={{height: 80, width:80}} onClick={this.addRow}>Add Item</button> 
+<button className="btn btn-success" type="button" style={{height: 80, width:80}} onClick={this.onClickAdd}>Add Item</button> 
 
 </div>
 
 </div>
 <br/>
-<table id="table1" className="table"><h6>Internal Prescription</h6><thead></thead><tbody></tbody></table>
+<table className="table"><h6 hidden={!this.state.internalPSize}>Internal Prescription</h6><tbody>
+  {this.internalItemList()}
+  </tbody>
+
+  </table>
 <br/>
-<table id="table2" className="table"><h6>External Prescription</h6><thead></thead><tbody></tbody></table>
+<table className="table"><h6 hidden={!this.state.externalPSize}>External Prescription</h6>
+<tbody>
+{this.externalItemList()}
+
+  </tbody></table>
 
 </div>
 
@@ -811,7 +950,7 @@ X-RAY  </label>
 
 <div className="row">
 <div className="col-3"style={{marginRight:30}}>
-<label for="consult_charge" className="form-label">Consultation Charge</label>
+<label for="consult_charge" className="form-label">Consultation Charge (Rs:)</label>
 <input type="text" className="form-control" id="item" value ={this.state.thisdoctor.consult_charge} readOnly ></input>
 </div>
 
